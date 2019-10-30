@@ -1,7 +1,23 @@
-import * as React from 'react';
+import React from 'react';
+import { action } from '@storybook/addon-actions';
+import { Button } from '@storybook/react/demo';
 import { Scene, Plane, Roof, Floor, LWall, RWall } from '../.';
 
-export default function HalfCube() {
+export default {
+  title: 'Demo',
+};
+
+export const text = () => <HalfCube />;
+
+export const emoji = () => (
+  <Button onClick={action('clicked')}>
+    <span role="img" aria-label="so cool">
+      😀 😎 👍 💯
+    </span>
+  </Button>
+);
+
+function HalfCube() {
   const side = 100;
   const [x, setX] = React.useState(0.5);
   const [y, setY] = React.useState(0.5);
@@ -163,9 +179,4 @@ function Slider({ value, setValue, style }) {
       }}
     />
   );
-}
-
-function Light() {
-  React.useLayoutEffect(() => {}, []);
-  return null;
 }

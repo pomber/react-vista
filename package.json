@@ -11,15 +11,12 @@
     "start": "tsdx watch",
     "build": "tsdx build",
     "test": "tsdx test --env=jsdom",
-    "lint": "tsdx lint"
+    "lint": "tsdx lint",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "peerDependencies": {
     "react": ">=16"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
   },
   "prettier": {
     "printWidth": 80,
@@ -28,14 +25,21 @@
     "trailingComma": "es5"
   },
   "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@storybook/addon-actions": "^5.2.4",
+    "@storybook/addon-links": "^5.2.4",
+    "@storybook/addons": "^5.2.4",
+    "@storybook/react": "^5.2.4",
     "@types/jest": "^24.0.18",
     "@types/react": "^16.9.5",
     "@types/react-dom": "^16.9.1",
+    "babel-loader": "^8.0.6",
     "husky": "^3.0.8",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "tsdx": "^0.9.3",
     "tslib": "^1.10.0",
     "typescript": "^3.6.4"
-  }
+  },
+  "dependencies": {}
 }
