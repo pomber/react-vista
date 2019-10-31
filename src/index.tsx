@@ -32,7 +32,7 @@ export function Scene({
   style,
   className,
   perspective = 1,
-  origin = { x: 0, y: 0 },
+  origin = { x: 0.5, y: 0.5 },
   scale = 1,
 }: SceneProps) {
   const [lights, setLights] = React.useState(() => new Map<string, Light>());

@@ -1,5 +1,6 @@
 import React from 'react';
 import speaker from './speaker.png';
+import seat from './seat.png';
 import {
   SceneContainer,
   SceneContent,
@@ -41,89 +42,126 @@ export const pulpit = () => (
 );
 
 function StoryScene({ children }) {
+  const [vw, vh] = useWindowSize();
+  const h = Math.max((vw / vh < 1.12 ? vw / 1.12 : vh) * 0.8, 360);
+  const scale = h * 0.181;
+  const yMiddle = 0.28;
+  const yOrigin = (0.55 * h) / vh;
   return (
-    <SceneContainer
-      className="scene"
-      style={{ height: '80vh', border: '1px solid red' }}
-      perspective={20}
-      scale={40}
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+        overflow: 'hidden',
+        background: '#112',
+        color: '#fafafa',
+      }}
     >
-      <SceneContent
-        style={{
-          border: '1px solid blue',
-          height: '100%',
-        }}
+      <SceneContainer
+        style={{ height: '100%', width: '100%' }}
+        perspective={12}
+        origin={{ x: 0.5, y: yOrigin }}
+        scale={scale}
       >
-        {children}
-      </SceneContent>
-      <div style={{ height: '100%' }} />
-    </SceneContainer>
+        <SceneContent
+          style={{
+            height: h,
+            width: '100%',
+            borderBottom: '1px red solid',
+          }}
+          origin={{ x: 0.5, y: yMiddle }}
+        >
+          {children}
+        </SceneContent>
+        <div style={{ height: '100%', transformStyle: 'preserve-3d' }}>
+          <h1>Code Surfer</h1>
+          <p>Lorem ipsum</p>
+        </div>
+      </SceneContainer>
+    </div>
   );
 }
 
 function Stage() {
+  const startZ = -4;
   return (
-    <RotateY degrees={-0}>
-      <Move dz={-5}>
+    <RotateY degrees={0}>
+      <Move dz={startZ - 5}>
         <Background />
-        <Marker />
+        {/* <Marker /> */}
       </Move>
-      <Move dz={-3} dy={-3}>
+      <Move dz={startZ - 3} dy={-3}>
         <Top />
-        <Marker />
+        {/* <Marker /> */}
       </Move>
-      <Move dz={-4}>
+      <Move dz={startZ - 4}>
         <Screen />
-        <Marker />
+        {/* <Marker /> */}
       </Move>
-      <Move dy={3} dx={2} dz={-2}>
+      <Move dy={3} dx={2} dz={startZ - 1}>
         <Pulpit />
-        <Marker />
+        {/* <Marker /> */}
       </Move>
-      <Move dx={-5} dz={-3}>
+      <Move dx={-5} dz={startZ - 3}>
         <RotateY degrees={15}>
           <Banner />
-          <Marker />
+          {/* <Marker /> */}
         </RotateY>
       </Move>
-      <Move dx={5} dz={-3}>
+      <Move dx={5} dz={startZ - 3}>
         <RotateY degrees={-15}>
           <Banner />
-          <Marker />
+          {/* <Marker /> */}
         </RotateY>
       </Move>
-      <Move dy={3}>
+      <Move dy={3} dz={startZ}>
         <Platform />
-        <Marker />
+        {/* <Marker /> */}
+      </Move>
+      <Rows rows={6} columns={14} fromZ={0} toZ={startZ + 2} dy={4} />
+      <Move dy={4} dz={0}>
+        <Bottom />
       </Move>
     </RotateY>
   );
 }
 
 function Screen() {
-  return <Plane w={8} h={4.5} style={{ background: '#3939' }} />;
+  return (
+    <Plane w={8} h={4.5} style={{ background: '#222', padding: '10px' }}>
+      <div
+        style={{
+          height: '100%',
+          width: '100%',
+          background: 'white',
+        }}
+      >
+        <span>Lorem Ipsum</span>
+      </div>
+    </Plane>
+  );
 }
 
 function Platform() {
-  const width = 14;
+  const width = 10;
   return (
     <React.Fragment>
       {/* floor */}
-      <Floor pinY="bottom" h={6} w={width} style={{ background: '#a929' }} />
+      <Floor pinY="bottom" h={6} w={width} style={{ background: '#555' }} />
       {/* front */}
-      <Plane pinY="top" h={1} w={width} style={{ background: '#29a' }} />
+      <Plane pinY="top" h={1} w={width} style={{ background: '#333' }} />
     </React.Fragment>
   );
 }
 
 function Top() {
-  const width = 16;
+  const width = 10;
   return (
     <React.Fragment>
       {/* roof */}
-      <Roof pinY="top" h={6} w={width} style={{ background: '#3939' }} />
+      <Roof pinY="top" h={6} w={width} style={{ background: '#555' }} />
       {/* front */}
-      <Plane pinY="bottom" h={1} w={width} style={{ background: '#3399' }} />
+      <Plane pinY="bottom" h={1} w={width} style={{ background: '#444' }} />
     </React.Fragment>
   );
 }
@@ -133,7 +171,7 @@ function Pulpit() {
   const h = 1;
   return (
     <React.Fragment>
-      <Plane w={w} h={h} style={{ background: '#99f9' }} pinY={'bottom'} />
+      <Plane w={w} h={h} style={{ background: '#444' }} pinY={'bottom'} />
       <Plane w={w} h={w} z={-0.2} y={-h * 0.9} pinY={'bottom'}>
         <img
           src={speaker}
@@ -146,11 +184,92 @@ function Pulpit() {
 }
 
 function Background() {
-  return <Plane w={16} h={9} style={{ background: '#822a' }} />;
+  return <Plane w={40} h={8} style={{ background: '#411' }} />;
 }
 
 function Banner() {
-  return <Plane w={1.5} h={3.5} style={{ background: '#8f6a' }} />;
+  return <Plane w={1.5} h={3.5} style={{ background: '#777' }} />;
+}
+
+function Rows({ rows, columns, fromZ, toZ, dy }) {
+  const count = rows;
+  const numbers = React.useMemo(
+    () =>
+      Array(count)
+        .fill(0)
+        .map((_, i) => fromZ + (i * (toZ - fromZ)) / (rows - 1)),
+    []
+  );
+  return (
+    <React.Fragment>
+      {numbers.map(dz => (
+        <Move dz={dz} dy={dy}>
+          <Row />
+        </Move>
+      ))}
+    </React.Fragment>
+  );
+}
+
+function Bottom() {
+  return (
+    <React.Fragment>
+      <Floor
+        style={{ background: '#112', backfaceVisibility: 'hidden' }}
+        h={11}
+        w={40}
+        y={-0.02}
+        pinY="bottom"
+      />
+      <Roof
+        style={{ background: '#112', backfaceVisibility: 'hidden' }}
+        h={11}
+        w={40}
+        y={-0.02}
+        z={0.1}
+        pinY="top"
+      />
+      <Roof
+        style={{ background: '#112', backfaceVisibility: 'hidden' }}
+        h={11}
+        w={40}
+        y={0.01}
+        pinY="top"
+      />
+    </React.Fragment>
+  );
+}
+
+function Row() {
+  const count = 14;
+  const numbers = Array(count)
+    .fill(0)
+    .map(
+      (_, i) =>
+        i -
+        (count - 1) / 2 +
+        (Math.random() - 0.5) * Math.random() * Math.random()
+    );
+  return (
+    <React.Fragment>
+      {numbers.map(i => (
+        <Seat key={i} number={i} />
+      ))}
+    </React.Fragment>
+  );
+}
+
+function Seat({ number }) {
+  const w = 0.8;
+  return (
+    <Plane w={w} h={w} x={number * w} pinY={'bottom'}>
+      <img
+        src={seat}
+        alt="attendant"
+        style={{ width: '100%', height: 'auto' }}
+      />
+    </Plane>
+  );
 }
 
 function Marker() {
@@ -164,4 +283,32 @@ function Marker() {
       </RotateZ>
     </React.Fragment>
   );
+}
+
+function useWindowSize() {
+  const isClient = typeof window === 'object';
+
+  function getSize() {
+    return [
+      isClient ? window.innerWidth : undefined,
+      isClient ? window.innerHeight : undefined,
+    ];
+  }
+
+  const [windowSize, setWindowSize] = React.useState(getSize);
+
+  React.useEffect(() => {
+    if (!isClient) {
+      return false;
+    }
+
+    function handleResize() {
+      setWindowSize(getSize());
+    }
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []); // Empty array ensures that effect is only run on mount and unmount
+
+  return windowSize;
 }
