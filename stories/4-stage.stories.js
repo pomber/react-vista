@@ -13,6 +13,7 @@ import {
   RotateY,
   RotateZ,
   Move,
+  useScale,
 } from '../.';
 
 export default {
@@ -53,8 +54,7 @@ function StoryScene({ children }) {
         height: '100%',
         width: '100%',
         overflow: 'hidden',
-        background: '#112',
-        color: '#fafafa',
+        color: 'rgb(51,51,51)',
       }}
     >
       <SceneContainer
@@ -67,13 +67,32 @@ function StoryScene({ children }) {
           style={{
             height: h,
             width: '100%',
-            borderBottom: '1px red solid',
+            // borderBottom: '1px red solid',
           }}
           origin={{ x: 0.5, y: yMiddle }}
         >
           {children}
         </SceneContent>
-        <div style={{ height: '100%', transformStyle: 'preserve-3d' }}>
+        <div
+          style={{
+            height: '100%',
+            background: '#FAF9F5',
+            transformStyle: 'preserve-3d',
+            marginTop: -1,
+          }}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1440 320"
+            preserveAspectRatio="none"
+            height={h * 0.2}
+            width={vw}
+          >
+            <path
+              fill="#202226"
+              d="M0,224L40,213.3C80,203,160,181,240,160C320,139,400,117,480,122.7C560,128,640,160,720,149.3C800,139,880,85,960,90.7C1040,96,1120,160,1200,192C1280,224,1360,224,1400,224L1440,224L1440,0L1400,0C1360,0,1280,0,1200,0C1120,0,1040,0,960,0C880,0,800,0,720,0C640,0,560,0,480,0C400,0,320,0,240,0C160,0,80,0,40,0L0,0Z"
+            ></path>
+          </svg>
           <h1>Code Surfer</h1>
           <p>Lorem ipsum</p>
         </div>
@@ -149,7 +168,7 @@ function Platform() {
       {/* floor */}
       <Floor pinY="bottom" h={6} w={width} style={{ background: '#555' }} />
       {/* front */}
-      <Plane pinY="top" h={1} w={width} style={{ background: '#333' }} />
+      <Plane pinY="top" h={1} w={width} style={{ background: '#222' }} />
     </React.Fragment>
   );
 }
@@ -161,18 +180,32 @@ function Top() {
       {/* roof */}
       <Roof pinY="top" h={6} w={width} style={{ background: '#555' }} />
       {/* front */}
-      <Plane pinY="bottom" h={1} w={width} style={{ background: '#444' }} />
+      <Plane pinY="bottom" h={1} w={width} style={{ background: '#333' }} />
     </React.Fragment>
   );
 }
 
 function Pulpit() {
   const w = 0.5;
-  const h = 1;
+  const h = 0.9;
+  const scale = useScale();
   return (
     <React.Fragment>
-      <Plane w={w} h={h} style={{ background: '#444' }} pinY={'bottom'} />
-      <Plane w={w} h={w} z={-0.2} y={-h * 0.9} pinY={'bottom'}>
+      <Plane
+        w={w}
+        h={h}
+        style={{
+          background: '#333',
+          color: '#FFF',
+          textAlign: 'center',
+          fontFamily: 'monospace',
+        }}
+        pinY={'bottom'}
+      >
+        <div style={{ fontSize: scale * 0.2, paddingTop: '40%' }}>RAD</div>
+        <div style={{ fontSize: scale * 0.15 }}>CONF</div>
+      </Plane>
+      <Plane w={w} h={w} z={-0.2} y={-h * 0.93} pinY={'bottom'}>
         <img
           src={speaker}
           alt="speaker"
@@ -184,7 +217,7 @@ function Pulpit() {
 }
 
 function Background() {
-  return <Plane w={40} h={8} style={{ background: '#411' }} />;
+  return <Plane w={40} h={8} style={{ background: '#211' }} />;
 }
 
 function Banner() {
@@ -215,14 +248,14 @@ function Bottom() {
   return (
     <React.Fragment>
       <Floor
-        style={{ background: '#112', backfaceVisibility: 'hidden' }}
+        style={{ background: '#202226', backfaceVisibility: 'hidden' }}
         h={11}
         w={40}
         y={-0.02}
         pinY="bottom"
       />
       <Roof
-        style={{ background: '#112', backfaceVisibility: 'hidden' }}
+        style={{ background: '#202226', backfaceVisibility: 'hidden' }}
         h={11}
         w={40}
         y={-0.02}
@@ -230,7 +263,7 @@ function Bottom() {
         pinY="top"
       />
       <Roof
-        style={{ background: '#112', backfaceVisibility: 'hidden' }}
+        style={{ background: '#202226', backfaceVisibility: 'hidden' }}
         h={11}
         w={40}
         y={0.01}

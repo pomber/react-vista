@@ -57,6 +57,11 @@ export function SceneContainer({
     </div>
   );
 }
+
+export function useScale() {
+  return React.useContext(SceneContext).scale;
+}
+
 type SceneContentProps = DivProps & { origin?: { x: number; y: number } };
 
 export function SceneContent({
