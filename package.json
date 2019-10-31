@@ -4,6 +4,7 @@
   "main": "dist/index.js",
   "module": "dist/react-vista.esm.js",
   "typings": "dist/index.d.ts",
+  "repository": "github:pomber/react-vista",
   "files": [
     "dist"
   ],
