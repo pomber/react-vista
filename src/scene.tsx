@@ -1,4 +1,8 @@
 import * as React from 'react';
+import { useId } from './global-ids';
+import { Fabric } from './filters';
+
+export * from './filters';
 
 type DivProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
@@ -119,6 +123,7 @@ type PlaneProps = {
     z: number;
     a: number;
   };
+  texture?: 'fabric';
 };
 
 export function Plane({
@@ -156,6 +161,20 @@ export function Plane({
     >
       {children}
     </div>
+  );
+}
+
+type PlaneWithTextureProps = PlaneProps & { texture: 'fabric' };
+
+export function PlaneWithTexture({ texture, ...rest }: PlaneWithTextureProps) {
+  const filterId = useId();
+  const style = rest.style || {};
+  style.filter = `url(#${filterId})`;
+  return (
+    <React.Fragment>
+      <Fabric id={filterId} />
+      <Plane {...rest} style={style} />
+    </React.Fragment>
   );
 }
 
@@ -241,16 +260,6 @@ export function Move({ dx = 0, dy = 0, dz = 0, children }: MoveProps) {
       {children}
     </div>
   );
-}
-
-let globalId = 1;
-function useId() {
-  const idRef = React.useRef<string>();
-  if (!idRef.current) {
-    idRef.current = `id-${globalId++}`;
-  }
-
-  return idRef.current;
 }
 
 type PointLightProps = {
