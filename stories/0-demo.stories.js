@@ -5,10 +5,12 @@ import {
   Floor,
   LWall,
   RWall,
+  PointLight,
   SceneContent,
   SceneContainer,
   RotateX,
   RotateY,
+  NoLights,
 } from '../.';
 
 export default {
@@ -33,12 +35,11 @@ function HalfCube() {
           <RotateX degrees={-30}>
             <RotateY degrees={-45}>
               {/* Floor */}
-              <Plane
+              <Floor
                 w={side}
                 h={side}
                 pinX="left"
                 pinY="top"
-                rotate={{ x: 1, y: 0, z: 0, a: 90 }}
                 style={{ background: '#717483', overflow: 'hidden' }}
               >
                 <Slider
@@ -58,7 +59,7 @@ function HalfCube() {
                     transform: 'translateY(-50%) rotateZ(90deg)',
                   }}
                 />
-              </Plane>
+              </Floor>
               {/* Left */}
               <LWall
                 w={side}
@@ -111,13 +112,16 @@ function HalfCube() {
                   }}
                 />
               </Plane>
-              <Ball
-                r={side / 20}
-                x={x * side}
-                y={-y * side}
-                z={z * side}
-                style={{ background: '#fdb813' }}
-              ></Ball>
+              <NoLights>
+                <Ball
+                  r={side / 20}
+                  x={x * side}
+                  y={-y * side}
+                  z={z * side}
+                  style={{ background: '#fdb813' }}
+                ></Ball>
+              </NoLights>
+              <PointLight x={x * side} y={y * side} z={z * side} />
             </RotateY>
           </RotateX>
         </SceneContent>
@@ -127,9 +131,10 @@ function HalfCube() {
 }
 
 function Ball({ r, x, y, z, style }) {
-  const angles = Array(36)
+  const count = 12;
+  const angles = Array(count)
     .fill(0)
-    .map((_, i) => i * 10);
+    .map((_, i) => (i * 360) / count);
   return (
     <div
       style={{
@@ -170,7 +175,7 @@ function Slider({ value, setValue, style }) {
     <input
       type="range"
       value={value}
-      onChange={e => setValue(+e.target.value)}
+      onChange={e => setValue(Math.max(+e.target.value, 0.1))}
       max={1}
       min={0}
       step={0.01}

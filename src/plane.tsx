@@ -1,5 +1,6 @@
 import React from 'react';
-import { useScale } from './context';
+import { useScale, TransformBase } from './context';
+import { useLights } from './lights';
 
 type PlaneProps = {
   style?: React.CSSProperties;
@@ -34,26 +35,32 @@ export function Plane({
   const scale = useScale();
   const dx = pinX === 'center' ? '-50%' : pinX === 'right' ? '-100%' : '0%';
   const dy = pinY === 'center' ? '-50%' : pinY === 'bottom' ? '-100%' : '0%';
+  // console.log('lights in plane', lights);
+  const { filter, lightStyle } = useLights();
   let rotation = rotate
     ? ` rotate3d(${rotate.x},${rotate.y},${rotate.z},${rotate.a}deg)`
     : '';
   return (
-    <div
-      style={{
-        ...style,
-        position: 'absolute',
-        boxSizing: 'border-box',
-        transformOrigin: `${pinX} ${pinY}`,
-        transformStyle: 'preserve-3d',
-        width: w != null ? w * scale : undefined,
-        height: h != null ? h * scale : undefined,
-        transform:
-          `translate(${dx},${dy}) translateX(${x * scale}px) translateY(${y *
-            scale}px) translateZ(${z * scale}px)` + rotation,
-      }}
-    >
-      {children}
-    </div>
+    <React.Fragment>
+      {filter}
+      <div
+        style={{
+          ...lightStyle,
+          ...style,
+          position: 'absolute',
+          boxSizing: 'border-box',
+          transformOrigin: `${pinX} ${pinY}`,
+          transformStyle: 'preserve-3d',
+          width: w != null ? w * scale : undefined,
+          height: h != null ? h * scale : undefined,
+          transform:
+            `translate(${dx},${dy}) translateX(${x * scale}px) translateY(${y *
+              scale}px) translateZ(${z * scale}px)` + rotation,
+        }}
+      >
+        {children}
+      </div>
+    </React.Fragment>
   );
 }
 
@@ -114,7 +121,7 @@ export function RotateZ({ degrees, children }: RotateProps) {
         position: 'absolute',
       }}
     >
-      {children}
+      <TransformBase transformation={[]}>{children}</TransformBase>
     </div>
   );
 }

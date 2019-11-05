@@ -1,8 +1,11 @@
 import React, { ReactNode } from 'react';
+import { dot, Transformation, origin } from './transform';
 
-type Light = {
+export type Light = {
   type: 'point';
   x: number;
+  y: number;
+  z: number;
 };
 
 type SceneContext = {
@@ -10,6 +13,7 @@ type SceneContext = {
   addLight: (key: string, light: Light) => void;
   removeLight: (key: string) => void;
   lights: Map<string, Light>;
+  base: Transformation;
 };
 
 export const defaultContext: SceneContext = {
@@ -17,6 +21,7 @@ export const defaultContext: SceneContext = {
   addLight: () => {},
   removeLight: () => {},
   lights: new Map<string, Light>(),
+  base: origin(),
 };
 
 const SceneContext = React.createContext<SceneContext>(defaultContext);
@@ -40,7 +45,7 @@ export function useScale() {
   return React.useContext(SceneContext).scale;
 }
 
-export function useContext() {
+export function useSceneContext() {
   return React.useContext(SceneContext);
 }
 
@@ -58,6 +63,30 @@ export function useNewLightsContext() {
       return new Map<string, Light>(prevLights);
     });
   }, []);
-  console.log('content lights', lights);
+  // console.log('content lights', lights);
   return { lights, addLight, removeLight };
+}
+
+export function NoLights({ children }: { children: ReactNode }) {
+  return (
+    <ContextProvider value={useNewLightsContext()}>{children}</ContextProvider>
+  );
+}
+
+type TransformBaseProps = {
+  children: ReactNode;
+  transformation: Transformation;
+};
+
+export function TransformBase({
+  transformation,
+  children,
+}: TransformBaseProps) {
+  const { base } = useSceneContext();
+  return (
+    <ContextProvider
+      value={{ base: dot(transformation, base) }}
+      children={children}
+    />
+  );
 }

@@ -1,7 +1,5 @@
 import * as React from 'react';
-export * from './plane';
-import { useScale, ContextProvider, useNewLightsContext } from './context';
-export { useScale };
+import { ContextProvider, useNewLightsContext } from './context';
 
 type DivProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
