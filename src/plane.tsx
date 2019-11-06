@@ -1,10 +1,20 @@
 import React from 'react';
-import { useScale, TransformBase } from './context';
+import { useScale, TransformBase, useSceneContext } from './context';
 import { useLights } from './lights';
+import {
+  rotateZ,
+  rotateY,
+  rotateX,
+  translate,
+  dot,
+  matrix3d,
+} from './transform';
 
+type DivProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>;
 type PlaneProps = {
-  style?: React.CSSProperties;
-  children?: React.ReactNode;
   x?: number;
   y?: number;
   z?: number;
@@ -12,13 +22,7 @@ type PlaneProps = {
   h?: number;
   pinX?: 'left' | 'center' | 'right';
   pinY?: 'top' | 'center' | 'bottom';
-  rotate?: {
-    x: number;
-    y: number;
-    z: number;
-    a: number;
-  };
-};
+} & DivProps;
 
 export function Plane({
   children,
@@ -30,20 +34,19 @@ export function Plane({
   h,
   pinX = 'center',
   pinY = 'center',
-  rotate,
+  ...rest
 }: PlaneProps) {
-  const scale = useScale();
+  const { scale, base } = useSceneContext();
   const dx = pinX === 'center' ? '-50%' : pinX === 'right' ? '-100%' : '0%';
   const dy = pinY === 'center' ? '-50%' : pinY === 'bottom' ? '-100%' : '0%';
-  // console.log('lights in plane', lights);
   const { filter, lightStyle } = useLights();
-  let rotation = rotate
-    ? ` rotate3d(${rotate.x},${rotate.y},${rotate.z},${rotate.a}deg)`
-    : '';
+  const transformation = dot(translate(x * scale, y * scale, z * scale), base);
+
   return (
     <React.Fragment>
       {filter}
       <div
+        {...rest}
         style={{
           ...lightStyle,
           ...style,
@@ -53,9 +56,7 @@ export function Plane({
           transformStyle: 'preserve-3d',
           width: w != null ? w * scale : undefined,
           height: h != null ? h * scale : undefined,
-          transform:
-            `translate(${dx},${dy}) translateX(${x * scale}px) translateY(${y *
-              scale}px) translateZ(${z * scale}px)` + rotation,
+          transform: `translate(${dx},${dy}) ${matrix3d(transformation)}`,
         }}
       >
         {children}
@@ -64,19 +65,41 @@ export function Plane({
   );
 }
 
-type WallProps = Omit<PlaneProps, 'rotate'> & { turn?: number };
+type WallProps = PlaneProps & { turn?: number };
 
-export function Roof({ turn = 1, ...props }: WallProps) {
-  return <Plane {...props} rotate={{ x: 1, y: 0, z: 0, a: turn * -90 }} />;
+export function Roof({ turn = 1, x = 0, y = 0, z = 0, ...props }: WallProps) {
+  return (
+    <RotateX degrees={-90 * turn}>
+      <Plane {...props} />
+    </RotateX>
+  );
 }
-export function Floor({ turn = 1, ...props }: WallProps) {
-  return <Plane {...props} rotate={{ x: 1, y: 0, z: 0, a: turn * 90 }} />;
+export function Floor({ turn = 1, x = 0, y = 0, z = 0, ...props }: WallProps) {
+  return (
+    <Move dx={x} dy={y} dz={z}>
+      <RotateX degrees={90 * turn}>
+        <Plane {...props} />
+      </RotateX>
+    </Move>
+  );
 }
-export function RWall({ turn = 1, ...props }: WallProps) {
-  return <Plane {...props} rotate={{ x: 0, y: 1, z: 0, a: turn * -90 }} />;
+export function RWall({ turn = 1, x = 0, y = 0, z = 0, ...props }: WallProps) {
+  return (
+    <Move dx={x} dy={y} dz={z}>
+      <RotateY degrees={-90 * turn}>
+        <Plane {...props} />
+      </RotateY>
+    </Move>
+  );
 }
-export function LWall({ turn = 1, ...props }: WallProps) {
-  return <Plane {...props} rotate={{ x: 0, y: 1, z: 0, a: turn * 90 }} />;
+export function LWall({ turn = 1, x = 0, y = 0, z = 0, ...props }: WallProps) {
+  return (
+    <Move dx={x} dy={y} dz={z}>
+      <RotateY degrees={90 * turn}>
+        <Plane {...props} />
+      </RotateY>
+    </Move>
+  );
 }
 
 type RotateProps = {
@@ -85,44 +108,24 @@ type RotateProps = {
 };
 
 export function RotateX({ degrees, children }: RotateProps) {
+  const transformation = rotateX(degrees);
   return (
-    <div
-      style={{
-        transformStyle: 'preserve-3d',
-        transform: `rotate3d(1,0,0,${degrees}deg)`,
-        position: 'absolute',
-      }}
-    >
-      {children}
-    </div>
+    <TransformBase transformation={transformation}>{children}</TransformBase>
   );
 }
 
 export function RotateY({ degrees, children }: RotateProps) {
+  const transformation = rotateY(degrees);
+
   return (
-    <div
-      style={{
-        transformStyle: 'preserve-3d',
-        transform: `rotate3d(0,1,0,${degrees}deg)`,
-        position: 'absolute',
-      }}
-    >
-      {children}
-    </div>
+    <TransformBase transformation={transformation}>{children}</TransformBase>
   );
 }
 
 export function RotateZ({ degrees, children }: RotateProps) {
+  const transformation = rotateZ(degrees);
   return (
-    <div
-      style={{
-        transformStyle: 'preserve-3d',
-        transform: `rotate3d(0,0,1,${degrees}deg)`,
-        position: 'absolute',
-      }}
-    >
-      <TransformBase transformation={[]}>{children}</TransformBase>
-    </div>
+    <TransformBase transformation={transformation}>{children}</TransformBase>
   );
 }
 
@@ -135,15 +138,8 @@ type MoveProps = {
 
 export function Move({ dx = 0, dy = 0, dz = 0, children }: MoveProps) {
   const scale = useScale();
+  const transformation = translate(dx * scale, dy * scale, dz * scale);
   return (
-    <div
-      style={{
-        transformStyle: 'preserve-3d',
-        transform: `translateX(${dx * scale}px) translateY(${dy *
-          scale}px) translateZ(${dz * scale}px)`,
-      }}
-    >
-      {children}
-    </div>
+    <TransformBase transformation={transformation}>{children}</TransformBase>
   );
 }

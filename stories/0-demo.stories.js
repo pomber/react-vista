@@ -11,6 +11,7 @@ import {
   RotateX,
   RotateY,
   NoLights,
+  Move,
 } from '../.';
 
 export default {
@@ -142,30 +143,28 @@ function Ball({ r, x, y, z, style }) {
         position: 'absolute',
       }}
     >
-      {angles.map((a, i) => (
-        <Plane
-          key={'y' + i}
-          w={r * 2}
-          h={r * 2}
-          x={x}
-          y={y}
-          z={z}
-          rotate={{ x: 0, y: 1, z: 0, a }}
-          style={{ borderRadius: '50%', ...style }}
-        ></Plane>
-      ))}
-      {angles.map((a, i) => (
-        <Plane
-          key={'x' + i}
-          w={r * 2}
-          h={r * 2}
-          x={x}
-          y={y}
-          z={z}
-          rotate={{ x: 1, y: 0, z: 0, a }}
-          style={{ borderRadius: '50%', ...style }}
-        ></Plane>
-      ))}
+      <Move dx={x} dy={y} dz={z}>
+        {angles.map((a, i) => (
+          <RotateY degrees={a}>
+            <Plane
+              key={'y' + i}
+              w={r * 2}
+              h={r * 2}
+              style={{ borderRadius: '50%', ...style }}
+            ></Plane>
+          </RotateY>
+        ))}
+        {angles.map((a, i) => (
+          <RotateX degrees={a}>
+            <Plane
+              key={'x' + i}
+              w={r * 2}
+              h={r * 2}
+              style={{ borderRadius: '50%', ...style }}
+            ></Plane>
+          </RotateX>
+        ))}
+      </Move>
     </div>
   );
 }

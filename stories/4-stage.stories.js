@@ -335,8 +335,8 @@ function Rows({ rows, columns, fromZ, toZ, dy }) {
         y={dy}
         style={{ background: '#222' }}
       />
-      {numbers.map(dz => (
-        <Move dz={dz} dy={dy}>
+      {numbers.map((dz, i) => (
+        <Move dz={dz} dy={dy} key={i}>
           <Row />
         </Move>
       ))}
