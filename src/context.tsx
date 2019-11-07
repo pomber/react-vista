@@ -1,13 +1,26 @@
 import React, { ReactNode } from 'react';
 import { dot, Transformation, origin } from './transform';
 
-export type Light = {
+export type LightPoint = {
   type: 'point';
   x: number;
   y: number;
   z: number;
   color: string;
 };
+
+export type LightSpot = {
+  type: 'spot';
+  x: number;
+  y: number;
+  z: number;
+  toX: number;
+  toY: number;
+  toZ: number;
+  color: string;
+};
+
+export type Light = LightPoint | LightSpot;
 
 type SceneContext = {
   scale: number;
