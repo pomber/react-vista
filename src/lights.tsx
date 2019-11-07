@@ -7,15 +7,21 @@ type PointLightProps = {
   x: number;
   y: number;
   z: number;
+  color?: string;
 };
-export function PointLight({ x = 0, y = 0, z = 0 }: PointLightProps) {
+export function PointLight({
+  x = 0,
+  y = 0,
+  z = 0,
+  color = '#FDB813',
+}: PointLightProps) {
   const { addLight, removeLight, base, scale } = useSceneContext();
   const key = useId();
   const [gx, gy, gz] = transformPoint([x * scale, y * scale, z * scale], base);
 
   React.useLayoutEffect(() => {
-    addLight(key, { type: 'point', x: gx, y: gy, z: gz });
-  }, [gx, gy, gz]);
+    addLight(key, { type: 'point', x: gx, y: gy, z: gz, color });
+  }, [gx, gy, gz, color]);
 
   React.useLayoutEffect(() => {
     return () => removeLight(key);
@@ -36,14 +42,21 @@ export function useLights() {
 
   const [x, y, z] = transformPoint([light.x, light.y, light.z], inverted);
 
-  const filter = <PointLightFilter id={filterId} x={x} y={y} z={z} />;
+  const filter = (
+    <PointLightFilter id={filterId} x={x} y={y} z={z} color={light.color} />
+  );
   const lightStyle = { filter: `url(#${filterId})` };
   return { filter, lightStyle };
 }
 
-type FilterProps = { id: string; x: number; y: number; z: number };
-function PointLightFilter({ id, x = 0, y = 0, z = 0 }: FilterProps) {
-  const color = '#FDB813';
+type FilterProps = {
+  id: string;
+  x: number;
+  y: number;
+  z: number;
+  color: string;
+};
+function PointLightFilter({ id, x = 0, y = 0, z = 0, color }: FilterProps) {
   const specularExponent = 10;
   const coneAngle = 10;
 

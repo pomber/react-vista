@@ -6,6 +6,7 @@ export type Light = {
   x: number;
   y: number;
   z: number;
+  color: string;
 };
 
 type SceneContext = {

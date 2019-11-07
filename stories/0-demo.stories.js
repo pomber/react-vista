@@ -23,16 +23,31 @@ export const cube = () => <HalfCube />;
 function HalfCube() {
   const side = 100;
   const [x, setX] = React.useState(0.5);
-  const [y, setY] = React.useState(0.5);
-  const [z, setZ] = React.useState(0.5);
+  const [y, setY] = React.useState(0.7);
+  const [z, setZ] = React.useState(0.3);
+  const [backColor, setBackColor] = React.useState('#886666');
+  const [leftColor, setLeftColor] = React.useState('#668866');
+  const [floorColor, setFloorColor] = React.useState('#666688');
+  const [lightColor, setLightColor] = React.useState('#FDB813');
   return (
     <div>
       <SceneContainer
-        style={{ height: window.innerHeight }}
+        style={{ height: window.innerHeight, color: '#fafafa' }}
         perspective={side * 10}
         scale={3}
       >
         <SceneContent style={{ height: '100%', width: '100%' }}>
+          <NoLights>
+            <Plane w={side} h={side / 4} y={-side} pinX="center" pinY="bottom">
+              Light Color:
+              <input
+                type="color"
+                style={{ marginLeft: '10px' }}
+                value={lightColor}
+                onChange={e => setLightColor(e.target.value)}
+              />
+            </Plane>
+          </NoLights>
           <RotateX degrees={-30}>
             <RotateY degrees={-45}>
               {/* Floor */}
@@ -41,7 +56,7 @@ function HalfCube() {
                 h={side}
                 pinX="left"
                 pinY="top"
-                style={{ background: '#717483', overflow: 'hidden' }}
+                style={{ background: floorColor, overflow: 'hidden' }}
               >
                 <Slider
                   value={x}
@@ -60,6 +75,11 @@ function HalfCube() {
                     transform: 'translateY(-50%) rotateZ(90deg)',
                   }}
                 />
+                <ColorPicker
+                  color={floorColor}
+                  setColor={setFloorColor}
+                  style={{ bottom: '10%', right: '10%' }}
+                />
               </Floor>
               {/* Left */}
               <LWall
@@ -67,7 +87,7 @@ function HalfCube() {
                 h={side}
                 pinX="right"
                 pinY="bottom"
-                style={{ background: '#817473', overflow: 'hidden' }}
+                style={{ background: leftColor, overflow: 'hidden' }}
               >
                 <Slider
                   value={z}
@@ -86,6 +106,11 @@ function HalfCube() {
                     transform: 'translateY(-50%) rotateZ(-90deg)',
                   }}
                 />
+                <ColorPicker
+                  color={leftColor}
+                  setColor={setLeftColor}
+                  style={{ top: '10%', left: '10%' }}
+                />
               </LWall>
               {/* Back */}
               <Plane
@@ -93,7 +118,7 @@ function HalfCube() {
                 h={side}
                 pinX="left"
                 pinY="bottom"
-                style={{ background: '#718473', overflow: 'hidden' }}
+                style={{ background: backColor, overflow: 'hidden' }}
               >
                 <Slider
                   value={y}
@@ -112,6 +137,11 @@ function HalfCube() {
                     transform: 'translateY(50%) ',
                   }}
                 />
+                <ColorPicker
+                  color={backColor}
+                  setColor={setBackColor}
+                  style={{ top: '10%', right: '10%' }}
+                />
               </Plane>
               <NoLights>
                 <Ball
@@ -119,10 +149,15 @@ function HalfCube() {
                   x={x * side}
                   y={-y * side}
                   z={z * side}
-                  style={{ background: '#fdb813' }}
+                  style={{ background: lightColor }}
                 ></Ball>
               </NoLights>
-              <PointLight x={x * side} y={-y * side} z={z * side} />
+              <PointLight
+                x={x * side}
+                y={-y * side}
+                z={z * side}
+                color={lightColor}
+              />
             </RotateY>
           </RotateX>
         </SceneContent>
@@ -185,5 +220,22 @@ function Slider({ value, setValue, style }) {
         ...style,
       }}
     />
+  );
+}
+
+function ColorPicker({ color, setColor, style }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        ...style,
+      }}
+    >
+      <input
+        type="color"
+        value={color}
+        onChange={e => setColor(e.target.value)}
+      />
+    </div>
   );
 }
