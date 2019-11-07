@@ -1,46 +1,21 @@
 import React from 'react';
 import { useScale, TransformBase, useSceneContext } from './context';
 import { useLights } from './lights';
-import {
-  rotateZ,
-  rotateY,
-  rotateX,
-  translate,
-  dot,
-  matrix3d,
-} from './transform';
+import { rotateZ, rotateY, rotateX, translate, matrix3d } from './transform';
 
 type DivProps = React.DetailedHTMLProps<
   React.HTMLAttributes<HTMLDivElement>,
   HTMLDivElement
 >;
-type PlaneProps = {
-  x?: number;
-  y?: number;
-  z?: number;
+
+type RectProps = {
   w?: number;
   h?: number;
-  pinX?: 'left' | 'center' | 'right';
-  pinY?: 'top' | 'center' | 'bottom';
 } & DivProps;
 
-export function Plane({
-  children,
-  style,
-  x = 0,
-  y = 0,
-  z = 0,
-  w,
-  h,
-  pinX = 'center',
-  pinY = 'center',
-  ...rest
-}: PlaneProps) {
+function Rect({ children, style, w, h, ...rest }: RectProps) {
   const { scale, base } = useSceneContext();
-  const dx = pinX === 'center' ? '-50%' : pinX === 'right' ? '-100%' : '0%';
-  const dy = pinY === 'center' ? '-50%' : pinY === 'bottom' ? '-100%' : '0%';
   const { filter, lightStyle } = useLights();
-  const transformation = dot(translate(x * scale, y * scale, z * scale), base);
 
   return (
     <React.Fragment>
@@ -52,16 +27,46 @@ export function Plane({
           ...style,
           position: 'absolute',
           boxSizing: 'border-box',
-          transformOrigin: `${pinX} ${pinY}`,
           transformStyle: 'preserve-3d',
           width: w != null ? w * scale : undefined,
           height: h != null ? h * scale : undefined,
-          transform: `translate(${dx},${dy}) ${matrix3d(transformation)}`,
+          transformOrigin: 'left top',
+          transform: matrix3d(base),
         }}
       >
         {children}
       </div>
     </React.Fragment>
+  );
+}
+
+type PlaneProps = {
+  x?: number;
+  y?: number;
+  z?: number;
+  // TODO make w & h optional
+  w: number;
+  h: number;
+  pinX?: 'left' | 'center' | 'right';
+  pinY?: 'top' | 'center' | 'bottom';
+} & RectProps;
+
+export function Plane({
+  x = 0,
+  y = 0,
+  z = 0,
+  w,
+  h,
+  pinX = 'center',
+  pinY = 'center',
+  ...rest
+}: PlaneProps) {
+  const dx = pinX === 'center' ? -0.5 * w : pinX === 'right' ? -w : 0;
+  const dy = pinY === 'center' ? -0.5 * h : pinY === 'bottom' ? -h : 0;
+  return (
+    <Move dx={x + dx} dy={y + dy} dz={z}>
+      <Rect {...rest} w={w} h={h} />
+    </Move>
   );
 }
 
@@ -109,23 +114,33 @@ type RotateProps = {
 
 export function RotateX({ degrees, children }: RotateProps) {
   const transformation = rotateX(degrees);
+  const opposite = rotateX(-degrees);
   return (
-    <TransformBase transformation={transformation}>{children}</TransformBase>
+    <TransformBase transformation={transformation} opposite={opposite}>
+      {children}
+    </TransformBase>
   );
 }
 
 export function RotateY({ degrees, children }: RotateProps) {
   const transformation = rotateY(degrees);
+  const opposite = rotateY(-degrees);
 
   return (
-    <TransformBase transformation={transformation}>{children}</TransformBase>
+    <TransformBase transformation={transformation} opposite={opposite}>
+      {children}
+    </TransformBase>
   );
 }
 
 export function RotateZ({ degrees, children }: RotateProps) {
   const transformation = rotateZ(degrees);
+  const opposite = rotateZ(-degrees);
+
   return (
-    <TransformBase transformation={transformation}>{children}</TransformBase>
+    <TransformBase transformation={transformation} opposite={opposite}>
+      {children}
+    </TransformBase>
   );
 }
 
@@ -139,7 +154,10 @@ type MoveProps = {
 export function Move({ dx = 0, dy = 0, dz = 0, children }: MoveProps) {
   const scale = useScale();
   const transformation = translate(dx * scale, dy * scale, dz * scale);
+  const opposite = translate(-dx * scale, -dy * scale, -dz * scale);
   return (
-    <TransformBase transformation={transformation}>{children}</TransformBase>
+    <TransformBase transformation={transformation} opposite={opposite}>
+      {children}
+    </TransformBase>
   );
 }

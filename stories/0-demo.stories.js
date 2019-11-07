@@ -30,7 +30,7 @@ function HalfCube() {
       <SceneContainer
         style={{ height: window.innerHeight }}
         perspective={side * 10}
-        scale={2}
+        scale={3}
       >
         <SceneContent style={{ height: '100%', width: '100%' }}>
           <RotateX degrees={-30}>
@@ -122,7 +122,7 @@ function HalfCube() {
                   style={{ background: '#fdb813' }}
                 ></Ball>
               </NoLights>
-              <PointLight x={x * side} y={y * side} z={z * side} />
+              <PointLight x={x * side} y={-y * side} z={z * side} />
             </RotateY>
           </RotateX>
         </SceneContent>
@@ -145,7 +145,7 @@ function Ball({ r, x, y, z, style }) {
     >
       <Move dx={x} dy={y} dz={z}>
         {angles.map((a, i) => (
-          <RotateY degrees={a}>
+          <RotateY degrees={a} key={'y' + i}>
             <Plane
               key={'y' + i}
               w={r * 2}
@@ -155,7 +155,7 @@ function Ball({ r, x, y, z, style }) {
           </RotateY>
         ))}
         {angles.map((a, i) => (
-          <RotateX degrees={a}>
+          <RotateX degrees={a} key={'x' + i}>
             <Plane
               key={'x' + i}
               w={r * 2}
@@ -174,7 +174,7 @@ function Slider({ value, setValue, style }) {
     <input
       type="range"
       value={value}
-      onChange={e => setValue(Math.max(+e.target.value, 0.1))}
+      onChange={e => setValue(Math.max(+e.target.value, 0.01))}
       max={1}
       min={0}
       step={0.01}

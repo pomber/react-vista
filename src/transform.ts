@@ -46,4 +46,15 @@ export function dot(A: Transformation, B: Transformation) {
   });
 }
 
+export function transformPoint(
+  [x, y, z]: [number, number, number],
+  A: Transformation
+) {
+  return [
+    x * A[0] + y * A[4] + z * A[8] + A[12],
+    x * A[1] + y * A[5] + z * A[9] + A[13],
+    x * A[2] + y * A[6] + z * A[10] + A[14],
+  ];
+}
+
 // https://codesandbox.io/s/reverent-kowalevski-xh52d

@@ -1,6 +1,7 @@
 import { useId } from './global-ids';
 import React from 'react';
 import { useSceneContext } from './context';
+import { transformPoint } from './transform';
 
 type PointLightProps = {
   x: number;
@@ -8,30 +9,34 @@ type PointLightProps = {
   z: number;
 };
 export function PointLight({ x = 0, y = 0, z = 0 }: PointLightProps) {
-  const { addLight, removeLight } = useSceneContext();
+  const { addLight, removeLight, base, scale } = useSceneContext();
   const key = useId();
+  const [gx, gy, gz] = transformPoint([x * scale, y * scale, z * scale], base);
+
   React.useLayoutEffect(() => {
-    addLight(key, { type: 'point', x, y, z });
+    addLight(key, { type: 'point', x: gx, y: gy, z: gz });
+  }, [gx, gy, gz]);
+
+  React.useLayoutEffect(() => {
     return () => removeLight(key);
   }, []);
-
-  React.useEffect(() => {
-    addLight(key, { type: 'point', x, y, z });
-  }, [x, y, z]);
 
   return null;
 }
 
 export function useLights() {
   const filterId = useId();
-  const { lights } = useSceneContext();
+  const { lights, inverted } = useSceneContext();
+
   if (lights.size === 0) {
     return { filter: null, lightStyle: null };
   }
+
   const light = Array.from(lights, ([_, value]) => value)[0];
-  const filter = (
-    <PointLightFilter id={filterId} x={light.x} y={light.y} z={light.z} />
-  );
+
+  const [x, y, z] = transformPoint([light.x, light.y, light.z], inverted);
+
+  const filter = <PointLightFilter id={filterId} x={x} y={y} z={z} />;
   const lightStyle = { filter: `url(#${filterId})` };
   return { filter, lightStyle };
 }
@@ -53,15 +58,15 @@ function PointLightFilter({ id, x = 0, y = 0, z = 0 }: FilterProps) {
         primitiveUnits="userSpaceOnUse"
       >
         <feDiffuseLighting
-          surfaceScale="20"
+          surfaceScale={0}
           in="SourceGraphic"
           result="light"
           lightingColor={color}
         >
           <fePointLight
-            x={x}
-            y={y}
-            z={z}
+            x={fixChromeBug(x)}
+            y={fixChromeBug(y)}
+            z={fixChromeBug(z)}
             specularExponent={specularExponent}
             limitingConeAngle={coneAngle}
           />
@@ -78,4 +83,8 @@ function PointLightFilter({ id, x = 0, y = 0, z = 0 }: FilterProps) {
       </filter>
     </svg>
   );
+}
+
+function fixChromeBug(l: number) {
+  return (window as any).chrome ? window.devicePixelRatio * l : l;
 }

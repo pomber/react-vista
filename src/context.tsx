@@ -14,6 +14,7 @@ type SceneContext = {
   removeLight: (key: string) => void;
   lights: Map<string, Light>;
   base: Transformation;
+  inverted: Transformation;
 };
 
 export const defaultContext: SceneContext = {
@@ -22,6 +23,7 @@ export const defaultContext: SceneContext = {
   removeLight: () => {},
   lights: new Map<string, Light>(),
   base: origin(),
+  inverted: origin(),
 };
 
 const SceneContext = React.createContext<SceneContext>(defaultContext);
@@ -76,16 +78,21 @@ export function NoLights({ children }: { children: ReactNode }) {
 type TransformBaseProps = {
   children: ReactNode;
   transformation: Transformation;
+  opposite: Transformation;
 };
 
 export function TransformBase({
   transformation,
+  opposite,
   children,
 }: TransformBaseProps) {
-  const { base } = useSceneContext();
+  const { base, inverted } = useSceneContext();
   return (
     <ContextProvider
-      value={{ base: dot(transformation, base) }}
+      value={{
+        base: dot(transformation, base),
+        inverted: dot(inverted, opposite),
+      }}
       children={children}
     />
   );
