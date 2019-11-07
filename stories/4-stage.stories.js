@@ -17,6 +17,7 @@ import {
   useScale,
   FabricTexture,
 } from '../.';
+import useWindowSize from './use-window-size';
 
 export default {
   title: 'Stage',
@@ -418,32 +419,4 @@ function Marker() {
       </RotateZ>
     </React.Fragment>
   );
-}
-
-function useWindowSize() {
-  const isClient = typeof window === 'object';
-
-  function getSize() {
-    return [
-      isClient ? window.innerWidth : undefined,
-      isClient ? window.innerHeight : undefined,
-    ];
-  }
-
-  const [windowSize, setWindowSize] = React.useState(getSize);
-
-  React.useEffect(() => {
-    if (!isClient) {
-      return false;
-    }
-
-    function handleResize() {
-      setWindowSize(getSize());
-    }
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []); // Empty array ensures that effect is only run on mount and unmount
-
-  return windowSize;
 }

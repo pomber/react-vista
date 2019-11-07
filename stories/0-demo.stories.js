@@ -14,6 +14,7 @@ import {
   Move,
 } from '../.';
 
+import useWindowSize from './use-window-size';
 export default {
   title: 'Demo',
 };
@@ -30,26 +31,27 @@ function HalfCube() {
   const [floorColor, setFloorColor] = React.useState('#666688');
   const [lightColor, setLightColor] = React.useState('#FDB813');
   const [angle, setAngle] = React.useState(-45);
+  const [vw, vh] = useWindowSize();
+  const scale = Math.min((0.4 * vw) / side, 2.5);
   return (
     <SceneContainer
-      style={{ height: window.innerHeight, color: '#fafafa' }}
+      style={{ height: vh, color: '#fafafa' }}
       perspective={side * 10}
-      scale={3}
+      scale={scale}
     >
       <SceneContent style={{ height: '100%', width: '100%' }}>
         <NoLights>
-          <Plane
-            w={side / 2}
-            h={side / 4}
-            y={-side}
-            pinX="center"
-            pinY="bottom"
-          >
-            <div>
+          <Plane w={side} h={side / 4} y={-side} pinX="center" pinY="bottom">
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               Light
               <input
                 type="color"
-                style={{ marginLeft: '46px' }}
                 value={lightColor}
                 onChange={e => setLightColor(e.target.value)}
               />
@@ -60,7 +62,7 @@ function HalfCube() {
               min={-90}
               max={0}
               step={1}
-              style={{ marginTop: '16px' }}
+              style={{ marginTop: '16px', width: '100%' }}
               value={angle}
               onChange={e => setAngle(+e.target.value)}
             />
