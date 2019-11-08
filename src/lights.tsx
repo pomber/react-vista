@@ -1,6 +1,6 @@
 import { useId } from './global-ids';
 import React from 'react';
-import { useSceneContext } from './context';
+import { useSceneContext, Light } from './context';
 import { transformPoint } from './transform';
 
 type PointLightProps = {
@@ -38,30 +38,27 @@ export function useLights() {
     return { filter: null, lightStyle: null };
   }
 
-  const light = Array.from(lights, ([_, value]) => value)[0];
+  // const light = Array.from(lights, ([_, value]) => value)[0];
+  const localLights = Array.from(lights, ([_, light]) => {
+    const [x, y, z] = transformPoint([light.x, light.y, light.z], inverted);
+    return { ...light, x, y, z };
+  });
 
-  const [x, y, z] = transformPoint([light.x, light.y, light.z], inverted);
-
-  const filter = (
-    <PointLightFilter id={filterId} x={x} y={y} z={z} color={light.color} />
-  );
+  const filter = <LightFilter id={filterId} lights={localLights} />;
   const lightStyle = { filter: `url(#${filterId})` };
   return { filter, lightStyle };
 }
 
-type FilterProps = {
+type LightFilterProps = {
   id: string;
-  x: number;
-  y: number;
-  z: number;
-  color: string;
+  lights: Light[];
 };
-function PointLightFilter({ id, x = 0, y = 0, z = 0, color }: FilterProps) {
+function LightFilter({ id, lights }: LightFilterProps) {
   const specularExponent = 10;
   const coneAngle = 10;
 
   return (
-    <svg width="0" height="0">
+    <svg width="0" height="0" style={{ position: 'absolute' }}>
       <filter
         id={id}
         x="0%"
@@ -70,29 +67,59 @@ function PointLightFilter({ id, x = 0, y = 0, z = 0, color }: FilterProps) {
         height="100%"
         primitiveUnits="userSpaceOnUse"
       >
-        <feDiffuseLighting
-          surfaceScale={0}
-          in="SourceGraphic"
-          result="light"
-          lightingColor={color}
-        >
-          <fePointLight
-            x={fixChromeBug(x)}
-            y={fixChromeBug(y)}
-            z={fixChromeBug(z)}
-            specularExponent={specularExponent}
-            limitingConeAngle={coneAngle}
-          />
-        </feDiffuseLighting>
-        <feComposite
-          in="SourceGraphic"
-          in2="light"
-          operator="arithmetic"
-          k1="1"
-          k2="0"
-          k3="0"
-          k4="0"
-        />
+        {lights.map(({ color, x, y, z }, i) => (
+          <React.Fragment key={i}>
+            <feDiffuseLighting
+              surfaceScale={0}
+              in="SourceGraphic"
+              result={'l' + i}
+              lightingColor={color}
+            >
+              <fePointLight
+                x={fixChromeBug(x)}
+                y={fixChromeBug(y)}
+                z={fixChromeBug(z)}
+                specularExponent={specularExponent}
+                limitingConeAngle={coneAngle}
+              />
+            </feDiffuseLighting>
+            {i > 0 ? (
+              <React.Fragment>
+                <feComposite
+                  in="SourceGraphic"
+                  in2={'l' + i}
+                  result={'cx' + i}
+                  operator="arithmetic"
+                  k1="1"
+                  k2="0"
+                  k3="0"
+                  k4="0"
+                />
+                <feComposite
+                  in={'cx' + i}
+                  in2={'c' + (i - 1)}
+                  result={'c' + i}
+                  operator="arithmetic"
+                  k1="0"
+                  k2="1"
+                  k3="1"
+                  k4="0"
+                />
+              </React.Fragment>
+            ) : (
+              <feComposite
+                in="SourceGraphic"
+                in2={'l' + i}
+                result={'c' + i}
+                operator="arithmetic"
+                k1="1"
+                k2="0"
+                k3="0"
+                k4="0"
+              />
+            )}
+          </React.Fragment>
+        ))}
       </filter>
     </svg>
   );

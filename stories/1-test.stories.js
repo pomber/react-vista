@@ -12,10 +12,10 @@ import {
   RotateX,
   RotateY,
 } from '../.';
-import TwoLights from './1.1-two-lights';
+import MultiLights from './1.1-multi-lights';
 
 export default {
   title: 'Tests',
 };
 
-export const twoLights = () => <TwoLights />;
+export const multiLights = () => <MultiLights />;
