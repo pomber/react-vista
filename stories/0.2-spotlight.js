@@ -10,6 +10,7 @@ import {
   SceneContainer,
   RotateX,
   RotateY,
+  RotateZ,
   NoLights,
   Move,
 } from '../.';
@@ -21,64 +22,29 @@ export default function Spotlights() {
   const [x, setX] = React.useState(0.5);
   const [y, setY] = React.useState(0.7);
   const [z, setZ] = React.useState(0.3);
-  const [backColor, setBackColor] = React.useState('#886666');
-  const [leftColor, setLeftColor] = React.useState('#668866');
-  const [floorColor, setFloorColor] = React.useState('#666688');
-  const [lightColor, setLightColor] = React.useState('#FDB813');
-  const [angle, setAngle] = React.useState(-45);
+  const [toX, setToX] = React.useState(0.5);
+  const [toY, setToY] = React.useState(0.7);
+  const [toZ, setToZ] = React.useState(0.3);
   const [vw, vh] = useWindowSize();
-  const scale = Math.min((0.4 * vw) / side, 2.5);
+  const scale = Math.min(0.4 * vw, 4);
+
   return (
     <SceneContainer
       style={{ height: vh, color: '#fafafa' }}
       perspective={side * 10}
       scale={scale}
+      origin={{ x: 0.5, y: 0 }}
     >
       <SceneContent style={{ height: '100%', width: '100%' }}>
-        <NoLights>
-          <Plane w={side} h={side / 4} y={-side} pinX="center" pinY="bottom">
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              Light
-              <input
-                type="color"
-                value={lightColor}
-                onChange={e => setLightColor(e.target.value)}
-              />
-            </div>
-
-            <input
-              type="range"
-              min={-90}
-              max={0}
-              step={1}
-              style={{ marginTop: '16px', width: '100%' }}
-              value={angle}
-              onChange={e => setAngle(+e.target.value)}
-            />
-          </Plane>
-        </NoLights>
-        <RotateX degrees={-30}>
-          <RotateY degrees={angle}>
-            {/* Floor */}
-            <Floor
-              w={side}
-              h={side}
-              pinX="left"
-              pinY="top"
-              style={{ background: floorColor, overflow: 'hidden' }}
-            >
+        <RotateY degrees={-15}>
+          <RotateX degrees={-15}>
+            <Floor style={{ background: '#fff0' }} w={side} h={side} y={-50}>
               <Slider
                 value={x}
                 setValue={setX}
                 style={{
-                  top: 0,
-                  transform: 'translateY(-50%)',
+                  bottom: 0,
+                  transform: 'translateY(50%)',
                 }}
               />
               <Slider
@@ -87,134 +53,41 @@ export default function Spotlights() {
                 style={{
                   top: 0,
                   transformOrigin: 'left',
-                  transform: 'translateY(-50%) rotateZ(90deg)',
+                  transform: 'translateY(-50%) rotate(90deg)',
                 }}
-              />
-              <ColorPicker
-                color={floorColor}
-                setColor={setFloorColor}
-                style={{ bottom: '10%', right: '10%' }}
               />
             </Floor>
-            {/* Left */}
-            <LWall
-              w={side}
-              h={side}
-              pinX="right"
-              pinY="bottom"
-              style={{ background: leftColor, overflow: 'hidden' }}
-            >
+            <Floor style={{ background: 'green' }} w={side} h={side} y={50}>
               <Slider
-                value={z}
-                setValue={setZ}
+                value={toX}
+                setValue={setToX}
                 style={{
                   bottom: 0,
-                  transform: 'translateY(50%) rotateZ(180deg)',
+                  transform: 'translateY(50%)',
                 }}
               />
               <Slider
-                value={y}
-                setValue={setY}
+                value={toZ}
+                setValue={setToZ}
                 style={{
-                  transformOrigin: 'right',
                   top: 0,
-                  transform: 'translateY(-50%) rotateZ(-90deg)',
-                }}
-              />
-              <ColorPicker
-                color={leftColor}
-                setColor={setLeftColor}
-                style={{ top: '10%', left: '10%' }}
-              />
-            </LWall>
-            {/* Back */}
-            <Plane
-              w={side}
-              h={side}
-              pinX="left"
-              pinY="bottom"
-              style={{ background: backColor, overflow: 'hidden' }}
-            >
-              <Slider
-                value={y}
-                setValue={setY}
-                style={{
-                  bottom: 0,
                   transformOrigin: 'left',
-                  transform: 'translateY(50%) rotateZ(-90deg)',
+                  transform: 'translateY(-50%) rotate(90deg)',
                 }}
               />
-              <Slider
-                value={x}
-                setValue={setX}
-                style={{
-                  bottom: 0,
-                  transform: 'translateY(50%) ',
-                }}
-              />
-              <ColorPicker
-                color={backColor}
-                setColor={setBackColor}
-                style={{ top: '10%', right: '10%' }}
-              />
-            </Plane>
-            <NoLights>
-              <Ball
-                r={side / 20}
-                x={x * side}
-                y={-y * side}
-                z={z * side}
-                style={{ background: lightColor }}
-              ></Ball>
-            </NoLights>
-            <PointLight
-              x={x * side}
-              y={-y * side}
-              z={z * side}
-              color={lightColor}
+            </Floor>
+            <SpotLight
+              x={x * side - side / 2}
+              y={-50}
+              z={z * side - side / 2}
+              toX={toX * side - side / 2}
+              toY={50}
+              toZ={toZ * side - side / 2}
             />
-          </RotateY>
-        </RotateX>
+          </RotateX>
+        </RotateY>
       </SceneContent>
     </SceneContainer>
-  );
-}
-
-function Ball({ r, x, y, z, style }) {
-  const count = 12;
-  const angles = Array(count)
-    .fill(0)
-    .map((_, i) => (i * 360) / count);
-  return (
-    <div
-      style={{
-        transformStyle: 'preserve-3d',
-        position: 'absolute',
-      }}
-    >
-      <Move dx={x} dy={y} dz={z}>
-        {angles.map((a, i) => (
-          <RotateY degrees={a} key={'y' + i}>
-            <Plane
-              key={'y' + i}
-              w={r * 2}
-              h={r * 2}
-              style={{ borderRadius: '50%', ...style }}
-            ></Plane>
-          </RotateY>
-        ))}
-        {angles.map((a, i) => (
-          <RotateX degrees={a} key={'x' + i}>
-            <Plane
-              key={'x' + i}
-              w={r * 2}
-              h={r * 2}
-              style={{ borderRadius: '50%', ...style }}
-            ></Plane>
-          </RotateX>
-        ))}
-      </Move>
-    </div>
   );
 }
 
@@ -237,19 +110,25 @@ function Slider({ value, setValue, style }) {
   );
 }
 
-function ColorPicker({ color, setColor, style }) {
+function SpotLight({ x, y, z, toX, toY, toZ }) {
+  const h = 6;
+  const w = 4;
+  const style = { background: '#b888' };
+  const dx = x - toX;
+  const dy = toY - y;
+  const zAngle = (Math.atan2(dx, dy) * 180) / Math.PI;
+  const dz = toZ - z;
+  const xAngle = (Math.atan2(dz, dy) * 180) / Math.PI;
   return (
-    <div
-      style={{
-        position: 'absolute',
-        ...style,
-      }}
-    >
-      <input
-        type="color"
-        value={color}
-        onChange={e => setColor(e.target.value)}
-      />
-    </div>
+    <Move dx={x} dy={y} dz={z}>
+      <RotateZ degrees={zAngle}>
+        <RotateX degrees={xAngle}>
+          <Plane pinY="top" w={w} h={h} z={-w / 2} style={style} />
+          <Plane pinY="top" w={w} h={h} z={+w / 2} style={style} />
+          <LWall pinY="top" x={-w / 2} w={w} h={h} style={style} />
+          <RWall pinY="top" x={+w / 2} w={w} h={h} style={style} />
+        </RotateX>
+      </RotateZ>
+    </Move>
   );
 }

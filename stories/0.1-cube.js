@@ -37,7 +37,7 @@ export default function HalfCube() {
     >
       <SceneContent style={{ height: '100%', width: '100%' }}>
         <NoLights>
-          <Plane w={side} h={side / 4} y={-side} pinX="center" pinY="bottom">
+          <Plane w={side} h={side * 0.3} y={-side} pinX="center" pinY="bottom">
             <div
               style={{
                 display: 'flex',
