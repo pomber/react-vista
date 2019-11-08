@@ -15,6 +15,7 @@ import {
 } from '../.';
 
 import useWindowSize from './use-window-size';
+import Ball from './ball';
 
 export default function HalfCube() {
   const side = 100;
@@ -158,15 +159,13 @@ export default function HalfCube() {
                 style={{ top: '10%', right: '10%' }}
               />
             </Plane>
-            <NoLights>
-              <Ball
-                r={side / 20}
-                x={x * side}
-                y={-y * side}
-                z={z * side}
-                style={{ background: lightColor }}
-              ></Ball>
-            </NoLights>
+            <Ball
+              r={side / 20}
+              x={x * side}
+              y={-y * side}
+              z={z * side}
+              color={lightColor}
+            ></Ball>
             <PointLight
               x={x * side}
               y={-y * side}
@@ -177,44 +176,6 @@ export default function HalfCube() {
         </RotateX>
       </SceneContent>
     </SceneContainer>
-  );
-}
-
-function Ball({ r, x, y, z, style }) {
-  const count = 12;
-  const angles = Array(count)
-    .fill(0)
-    .map((_, i) => (i * 360) / count);
-  return (
-    <div
-      style={{
-        transformStyle: 'preserve-3d',
-        position: 'absolute',
-      }}
-    >
-      <Move dx={x} dy={y} dz={z}>
-        {angles.map((a, i) => (
-          <RotateY degrees={a} key={'y' + i}>
-            <Plane
-              key={'y' + i}
-              w={r * 2}
-              h={r * 2}
-              style={{ borderRadius: '50%', ...style }}
-            ></Plane>
-          </RotateY>
-        ))}
-        {angles.map((a, i) => (
-          <RotateX degrees={a} key={'x' + i}>
-            <Plane
-              key={'x' + i}
-              w={r * 2}
-              h={r * 2}
-              style={{ borderRadius: '50%', ...style }}
-            ></Plane>
-          </RotateX>
-        ))}
-      </Move>
-    </div>
   );
 }
 

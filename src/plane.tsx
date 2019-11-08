@@ -21,20 +21,26 @@ function Rect({ children, style, w, h, ...rest }: RectProps) {
     <React.Fragment>
       {filter}
       <div
-        {...rest}
         style={{
-          ...lightStyle,
-          ...style,
           position: 'absolute',
           boxSizing: 'border-box',
           transformStyle: 'preserve-3d',
-          width: w != null ? w * scale : undefined,
-          height: h != null ? h * scale : undefined,
           transformOrigin: 'left top',
           transform: matrix3d(base),
         }}
       >
-        {children}
+        <div
+          {...rest}
+          style={{
+            ...lightStyle,
+            ...style,
+            boxSizing: 'border-box',
+            width: w != null ? w * scale : undefined,
+            height: h != null ? h * scale : undefined,
+          }}
+        >
+          {children}
+        </div>
       </div>
     </React.Fragment>
   );
