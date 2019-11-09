@@ -29,6 +29,51 @@ export function PointLight({
 
   return null;
 }
+type SpotsLightProps = {
+  x: number;
+  y: number;
+  z: number;
+  toX: number;
+  toY: number;
+  toZ: number;
+  color?: string;
+};
+export function SpotLight({
+  x = 0,
+  y = 0,
+  z = 0,
+  toX = 0,
+  toY = 0,
+  toZ = 0,
+  color = '#FDB813',
+}: SpotsLightProps) {
+  const { addLight, removeLight, base, scale } = useSceneContext();
+  const key = useId();
+  const [gx, gy, gz] = transformPoint([x * scale, y * scale, z * scale], base);
+  const [gtx, gty, gtz] = transformPoint(
+    [toX * scale, toY * scale, toZ * scale],
+    base
+  );
+
+  React.useLayoutEffect(() => {
+    addLight(key, {
+      type: 'spot',
+      x: gx,
+      y: gy,
+      z: gz,
+      toX: gtx,
+      toY: gty,
+      toZ: gtz,
+      color,
+    });
+  }, [gx, gy, gz, gtx, gty, gtz, color]);
+
+  React.useLayoutEffect(() => {
+    return () => removeLight(key);
+  }, []);
+
+  return null;
+}
 
 export function useLights() {
   const filterId = useId();
@@ -38,10 +83,14 @@ export function useLights() {
     return { filter: null, lightStyle: null };
   }
 
-  // const light = Array.from(lights, ([_, value]) => value)[0];
   const localLights = Array.from(lights, ([_, light]) => {
     const [x, y, z] = transformPoint([light.x, light.y, light.z], inverted);
-    return { ...light, x, y, z };
+    if (light.type === 'point') return { ...light, x, y, z };
+    const [toX, toY, toZ] = transformPoint(
+      [light.toX, light.toY, light.toZ],
+      inverted
+    );
+    return { ...light, x, y, z, toX, toY, toZ };
   });
 
   const filter = <LightFilter id={filterId} lights={localLights} />;
@@ -67,21 +116,34 @@ function LightFilter({ id, lights }: LightFilterProps) {
         height="100%"
         primitiveUnits="userSpaceOnUse"
       >
-        {lights.map(({ color, x, y, z }, i) => (
+        {lights.map((light, i) => (
           <React.Fragment key={i}>
             <feDiffuseLighting
               surfaceScale={0}
               in="SourceGraphic"
               result={'l' + i}
-              lightingColor={color}
+              lightingColor={light.color}
             >
-              <fePointLight
-                x={fixChromeBug(x)}
-                y={fixChromeBug(y)}
-                z={fixChromeBug(z)}
-                specularExponent={specularExponent}
-                limitingConeAngle={coneAngle}
-              />
+              {light.type === 'point' ? (
+                <fePointLight
+                  x={fixChromeBug(light.x)}
+                  y={fixChromeBug(light.y)}
+                  z={fixChromeBug(light.z)}
+                  specularExponent={specularExponent}
+                  limitingConeAngle={coneAngle}
+                />
+              ) : (
+                <feSpotLight
+                  x={fixChromeBug(light.x)}
+                  y={fixChromeBug(light.y)}
+                  z={fixChromeBug(light.z)}
+                  pointsAtX={fixChromeBug(light.toX)}
+                  pointsAtY={fixChromeBug(light.toY)}
+                  pointsAtZ={fixChromeBug(light.toZ)}
+                  specularExponent={specularExponent}
+                  limitingConeAngle={coneAngle}
+                />
+              )}
             </feDiffuseLighting>
             {i > 0 ? (
               <React.Fragment>
