@@ -134,12 +134,12 @@ function LightFilter({ id, lights }: LightFilterProps) {
                 />
               ) : (
                 <feSpotLight
-                  x={fixChromeBug(light.x)}
-                  y={fixChromeBug(light.y)}
-                  z={fixChromeBug(light.z)}
-                  pointsAtX={fixChromeBug(light.toX)}
-                  pointsAtY={fixChromeBug(light.toY)}
-                  pointsAtZ={fixChromeBug(light.toZ)}
+                  x={fixChromeBug(light.x, true)}
+                  y={fixChromeBug(light.y, true)}
+                  z={fixChromeBug(light.z, true)}
+                  pointsAtX={fixChromeBug(light.toX, true)}
+                  pointsAtY={fixChromeBug(light.toY, true)}
+                  pointsAtZ={fixChromeBug(light.toZ, true)}
                   specularExponent={specularExponent}
                   limitingConeAngle={coneAngle}
                 />
@@ -187,6 +187,6 @@ function LightFilter({ id, lights }: LightFilterProps) {
   );
 }
 
-function fixChromeBug(l: number) {
-  return (window as any).chrome ? window.devicePixelRatio * l : l;
+function fixChromeBug(l: number, spot = false) {
+  return (window as any).chrome || spot ? window.devicePixelRatio * l : l;
 }

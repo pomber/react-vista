@@ -5,6 +5,8 @@ import { themes } from '@storybook/theming';
 addParameters({
   options: {
     theme: themes.dark,
+    name: 'React Vista',
+    url: 'https://github.com/pomber/react-vista',
   },
 });
 

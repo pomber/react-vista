@@ -16,6 +16,9 @@ import {
   Move,
   useScale,
   FabricTexture,
+  SpotLight,
+  NoLights,
+  PointLight,
 } from '../.';
 import useWindowSize from './use-window-size';
 
@@ -37,14 +40,6 @@ export const platform = () => (
   </StoryScene>
 );
 
-export const pulpit = () => (
-  <StoryScene>
-    <Move dy={1} dx={2}>
-      <Pulpit />
-    </Move>
-  </StoryScene>
-);
-
 const whiteBackground = '#FAF9F5';
 const darkBackground = '#202226';
 
@@ -52,10 +47,10 @@ const dividerTexture = `url("https://www.transparenttextures.com/patterns/bright
 // const dividerTexture = `url("https://www.definicionabc.com/wp-content/uploads/rombo.jpg")`;
 function StoryScene({ children }) {
   const [vw, vh] = useWindowSize();
-  const h = Math.max((vw / vh < 1.12 ? vw / 1.12 : vh) * 0.8, 360);
-  const scale = h * 0.181;
-  const yMiddle = 0.28;
-  const yOrigin = (0.55 * h) / vh;
+  const h = Math.max((vw / vh < 1.12 ? vw / 1.12 : vh) * 0.75, 330);
+  const scale = h * 0.2;
+  const yMiddle = 0.33;
+  const yOrigin = (0.6 * h) / vh;
   return (
     <div
       style={{
@@ -134,15 +129,24 @@ function Stage() {
     <RotateY degrees={0}>
       <Move dz={startZ - 5}>
         <Background />
-        {/* <Marker /> */}
-      </Move>
-      <Move dz={startZ - 3} dy={-3}>
-        <Top />
-        {/* <Marker /> */}
       </Move>
       <Move dz={startZ - 4}>
         <Screen />
         {/* <Marker /> */}
+      </Move>
+      {/* <NoLights> */}
+      {/* <PointLight color="#777" x={-2} z={startZ + 2} /> */}
+      {/* <PointLight color="#fff" x={2} z={startZ + 2} /> */}
+
+      <Move dz={startZ - 3} dy={-3}>
+        <Top />
+      </Move>
+      <Move dz={startZ} dy={-3}>
+        {/* <SpotLight color="#539ed8" toY={1} x={-2} toX={-2} toZ={-0.25} />
+        <SpotLight color="#f9bc00" toY={1} x={-1} toX={0} toZ={-0.25} />
+        <SpotLight color="#c30083" toY={1} x={0} toX={0} toZ={-0.25} />
+        <SpotLight color="pink" toY={1} x={1} toX={0} toZ={-0.25} />
+        <SpotLight color="#539ed8" toY={1} x={2} toX={2} toZ={-0.25} /> */}
       </Move>
       <Move dy={3.3} dx={2} dz={startZ - 1}>
         <Pulpit />
@@ -164,7 +168,8 @@ function Stage() {
         <Platform />
         {/* <Marker /> */}
       </Move>
-      <Rows rows={6} columns={14} fromZ={-1} toZ={startZ + 1} dy={4} />
+      {/* </NoLights> */}
+      {/* <Rows rows={6} columns={14} fromZ={-1} toZ={startZ + 1} dy={4} /> */}
       <Move dy={4.5} dz={0}>
         <Bottom />
       </Move>
@@ -190,7 +195,7 @@ function Screen() {
 }
 
 function Platform() {
-  const width = 10;
+  const width = 14;
   return (
     <React.Fragment>
       {/* floor */}
@@ -209,7 +214,7 @@ function Platform() {
         h={1.5}
         w={width}
         style={{
-          background: '#111',
+          background: '#222',
           backgroundImage: `url("https://www.transparenttextures.com/patterns/wood.png")`,
         }}
       />
@@ -237,7 +242,7 @@ function Top() {
         h={1}
         w={width}
         style={{
-          background: '#161616',
+          background: '#222',
           backgroundImage: `url("https://www.transparenttextures.com/patterns/wood.png")`,
         }}
       />
@@ -281,7 +286,7 @@ function Background() {
   const scale = useScale();
   return (
     <Plane
-      w={16}
+      w={14}
       h={10}
       style={{
         background: '#222',
@@ -349,10 +354,9 @@ function Bottom() {
   const scale = useScale();
   return (
     <React.Fragment>
-      <Floor
+      {/* <Floor
         style={{
           background: '#202226',
-          backfaceVisibility: 'hidden',
           backgroundImage: `url("https://www.transparenttextures.com/patterns/subtle-stripes.png")`,
           backgroundSize: scale,
         }}
@@ -360,7 +364,7 @@ function Bottom() {
         w={16}
         y={-0.02}
         pinY="bottom"
-      />
+      /> */}
       <Floor
         style={{
           background: darkBackground,
@@ -369,7 +373,7 @@ function Bottom() {
         }}
         h={1}
         w={(window.innerWidth * 1.08) / scale}
-        y={-0.53}
+        y={-1.156}
         pinY="bottom"
       />
     </React.Fragment>
